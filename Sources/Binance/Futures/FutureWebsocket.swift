@@ -7,7 +7,6 @@
 
 import CryptocurrencyMarketAPI_Common
 import Foundation
-import RxCocoa
 import RxSwift
 import SwiftyJSON
 
@@ -23,13 +22,15 @@ public class FutureWebsocket {
         webSocketEngine.onEvent = { event in
             switch event {
             case let .text(text):
-                let json = JSON(text)
-                guard let e = json["e"].string else {
-                    return
-                }
-                for (key, subject) in self.subscribeSubjects {
-                    if key.hasSuffix("_\(e)") {
-                        subject.onNext(json)
+                if let data = text.data(using: .utf8), let json = try? JSON(data: data), let stream = json["stream"].string {
+                    for (key, subject) in self.subscribeSubjects {
+                        if key.hasPrefix("\(stream)_") {
+                            if json["data"].dictionary != nil {
+                                subject.onNext(json["data"])
+                            } else {
+                                subject.onNext(json)
+                            }
+                        }
                     }
                 }
             default:
@@ -38,31 +39,55 @@ public class FutureWebsocket {
         }
     }
 
-    public func subscribe<T: BinanceWebsocketStream>(_ stream: T) -> Signal<JSON> {
+    public func subscribe<T: BinanceWebsocketStream>(_ stream: T) -> Observable<JSON> {
         let key = stream.streamName(symbol: symbol.rawValue) + "_" + stream.callbackEventName
+        var subject: PublishSubject<JSON>
         if let old = subscribeSubjects[key] {
-            return old.asSignal { _ in Signal<JSON>.empty() }
+            subject = old
         } else {
-            DispatchQueue.main.async {
-                self.webSocketEngine.write(string: stream.streamName(symbol: self.symbol.rawValue))
-            }
+            subject = PublishSubject<JSON>()
+        }
+        return subject
+            .do(onSubscribe: { [weak self, weak subject] in
+                guard let self = self, let subject = subject else { return }
+                if self.subscribeSubjects[key] == nil {
+                    self.subscribeWrite(stream.streamName(symbol: self.symbol.rawValue))
+                    self.subscribeSubjects[key] = subject
+                }
+                self.subscribeCounters[key] = (self.subscribeCounters[key] ?? 0) + 1
+            }, onDispose: { [weak self] in
+                guard let self = self else { return }
+                self.subscribeCounters[key] = (self.subscribeCounters[key] ?? 0) - 1
+                if (self.subscribeCounters[key] ?? 0) <= 0 {
+                    self.subscribeCounters.removeValue(forKey: key)
+                    self.subscribeSubjects.removeValue(forKey: key)
+                    self.unsubscribeWrite(stream.streamName(symbol: self.symbol.rawValue))
+                }
+            })
+            .asObservable()
+    }
 
-            let new = PublishSubject<JSON>()
-            return new
-                .do(onSubscribe: { [weak self, weak new] in
-                    guard let self = self, let new = new else { return }
-                    let count = self.subscribeCounters[key] ?? 0
-                    self.subscribeSubjects[key] = new
-                    self.subscribeCounters[key] = count + 1
-                }, onDispose: { [weak self] in
-                    guard let self = self else { return }
-                    let count = self.subscribeCounters[key] ?? 0
-                    if count <= 0 {
-                        self.subscribeCounters.removeValue(forKey: key)
-                        self.subscribeSubjects.removeValue(forKey: key)
-                    }
-                })
-                .asSignal { _ in Signal<JSON>.empty() }
+    private func subscribeWrite(_ params: String) {
+        let api = [
+            "method": "SUBSCRIBE",
+            "params": [params],
+            "id": Int64(Date().timeIntervalSince1970 * 1000),
+        ] as [String: Any]
+
+        if let data = try? JSONSerialization.data(withJSONObject: api, options: []), let json = String(data: data, encoding: .utf8) {
+            webSocketEngine.write(string: json)
+        }
+    }
+
+    private func unsubscribeWrite(_ params: String) {
+        let api = [
+            "method": "UNSUBSCRIBE",
+            "params": [params],
+            "id": Int64(Date().timeIntervalSince1970 * 1000),
+        ] as [String: Any]
+
+        if let data = try? JSONSerialization.data(withJSONObject: api, options: []), let json = String(data: data, encoding: .utf8) {
+            webSocketEngine.write(string: json)
         }
     }
 }

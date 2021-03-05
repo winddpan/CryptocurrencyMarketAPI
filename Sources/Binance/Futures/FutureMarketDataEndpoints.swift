@@ -101,7 +101,7 @@ extension FutureMarketDataEndpoints: BinanceRestEndpoint {
     public var method: String {
         return "GET"
     }
-    
+
     public var needSignature: Bool {
         return false
     }
@@ -167,91 +167,91 @@ extension FutureMarketDataEndpoints: BinanceRestEndpoint {
             return [:]
         case let .depth(symbol: symbol, limit: limit):
             return ["symbol": symbol,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .trades(symbol: symbol, limit: limit):
             return ["symbol": symbol,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .historicalTrades(symbol: symbol, limit: limit, fromId: fromId):
             return ["symbol": symbol,
                     "fromId": fromId,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .aggTrades(symbol: symbol, fromId: fromId, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "fromId": fromId,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .klines(symbol: symbol, interval: interval, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "interval": interval.symbol,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .continuousKlines(symbol: symbol, contractType: contractType, interval: interval, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "contractType": contractType.symbol,
                     "interval": interval.symbol,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .premiumIndex(symbol: symbol):
-            return ["symbol": symbol].unwrapperValue()
+            return ["symbol": symbol].compactMapValues { $0 }
         case let .fundingRate(symbol: symbol, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let ._24hr(symbol: symbol):
-            return ["symbol": symbol].unwrapperValue()
+            return ["symbol": symbol].compactMapValues { $0 }
         case let .price(symbol: symbol):
-            return ["symbol": symbol].unwrapperValue()
+            return ["symbol": symbol].compactMapValues { $0 }
         case let .bookTicker(symbol: symbol):
-            return ["symbol": symbol].unwrapperValue()
+            return ["symbol": symbol].compactMapValues { $0 }
         case let .allForceOrders(symbol: symbol, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .openInterest(symbol: symbol):
-            return ["symbol": symbol].unwrapperValue()
+            return ["symbol": symbol].compactMapValues { $0 }
         case let .openInterestHist(symbol: symbol, period: period, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "period": period,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .topLongShortAccountRatio(symbol: symbol, period: period, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "period": period,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .topLongShortPositionRatio(symbol: symbol, period: period, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "period": period,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .globalLongShortAccountRatio(symbol: symbol, period: period, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "period": period,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .takerlongshortRatio(symbol: symbol, period: period, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "period": period,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .lvtKlines(symbol: symbol, interval: interval, startTime: startTime, endTime: endTime, limit: limit):
             return ["symbol": symbol,
                     "interval": interval.symbol,
                     "startTime": startTime,
                     "endTime": endTime,
-                    "limit": limit].unwrapperValue()
+                    "limit": limit].compactMapValues { $0 }
         case let .indexInfo(symbol: symbol):
-            return ["symbol": symbol].unwrapperValue()
+            return ["symbol": symbol].compactMapValues { $0 }
         }
     }
 }

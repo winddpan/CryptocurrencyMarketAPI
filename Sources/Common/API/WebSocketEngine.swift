@@ -21,6 +21,9 @@ open class WebSocketEngine: WebSocketDelegate {
     open var onEvent: ((WebSocketEvent) -> Void)?
     private let socket: WebSocket
     private var lastPongDate = Date(timeIntervalSince1970: 0)
+    private let callbackQueue = DispatchQueue(label: "com.cyptocurrencyMarketAPI.socket")
+    private let writeQueue = DispatchQueue(label: "com.cyptocurrencyMarketAPI.socketWrite")
+    private var writeQueueSuspend = false
 
     public required init(url: URL, pongInterval: PongInterval = .never) {
         self.url = url
@@ -29,23 +32,38 @@ open class WebSocketEngine: WebSocketDelegate {
         var request = URLRequest(url: url)
         request.timeoutInterval = 5
         socket = WebSocket(request: request)
-        socket.callbackQueue = DispatchQueue(label: "com.cyptocurrencyMarketAPI.socket")
-        socket.onEvent = onEvent
+        socket.callbackQueue = callbackQueue
         socket.respondToPingWithPong = false
         socket.delegate = self
         socket.connect()
+
+        callbackQueue.async {
+            self.writeQueueSuspend = true
+            self.writeQueue.suspend()
+        }
     }
 
     public func write(data: Data, completion: (() -> Void)? = nil) {
-        socket.write(data: data, completion: completion)
+        writeQueue.async { [weak self] in
+            self?.socket.write(data: data, completion: completion)
+        }
     }
 
     public func write(string: String, completion: (() -> Void)? = nil) {
-        socket.write(string: string, completion: completion)
+        writeQueue.async { [weak self] in
+            self?.socket.write(string: string, completion: completion)
+        }
     }
 
     open func didReceive(event: WebSocketEvent, client: WebSocket) {
         switch event {
+        case .connected:
+            if writeQueueSuspend {
+                writeQueueSuspend = false
+                callbackQueue.asyncAfter(deadline: .now() + 0.01) {
+                    self.writeQueue.resume()
+                }
+            }
         case .ping:
             switch pongInterval {
             case .never:
@@ -62,5 +80,7 @@ open class WebSocketEngine: WebSocketDelegate {
         default:
             break
         }
+
+        onEvent?(event)
     }
 }

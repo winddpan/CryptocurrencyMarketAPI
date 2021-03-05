@@ -15,7 +15,7 @@ public class FutureRestSession {
     public let apiKey: String
     public let secretKey: String
 
-    required init(apiKey: String, secretKey: String) {
+    public required init(apiKey: String, secretKey: String) {
         self.apiKey = apiKey
         self.secretKey = secretKey
     }

@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "CryptocurrencyMarketAPI-Binance",
+    name: "CryptocurrencyMarketAPI",
     platforms: [.iOS(.v13), .macOS(.v11)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -30,8 +30,7 @@ let package = Package(
             name: "CryptocurrencyMarketAPI-Common",
             dependencies: ["Starscream",
                            "SwiftyJSON",
-                           "RxSwift",
-                           .product(name: "RxCocoa", package: "RxSwift")],
+                           "RxSwift"],
             path: "Sources/Common"
         ),
         .target(

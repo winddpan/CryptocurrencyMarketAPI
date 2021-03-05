@@ -26,6 +26,9 @@ open class RestSession {
     public func request(_ api: RestEndpoint) -> Single<JSON> {
         var urlCompos = URLComponents(url: baseUrl, resolvingAgainstBaseURL: true)!
         urlCompos.path = api.path.hasPrefix("/") ? api.path : "/\(api.path)"
+        urlCompos.queryItems = api.parameters.compactMap { (key, value) -> URLQueryItem? in
+            URLQueryItem(name: key, value: "\(value)")
+        }
         var request = URLRequest(url: urlCompos.url!)
         request.timeoutInterval = 5
         request.httpMethod = api.method
