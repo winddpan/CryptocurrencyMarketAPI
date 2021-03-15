@@ -12,10 +12,10 @@ let package = Package(
             name: "CryptocurrencyMarketAPI-Binance",
             targets: ["CryptocurrencyMarketAPI-Binance"]
         ),
-        .library(
-            name: "CryptocurrencyMarketAPI-Huobi",
-            targets: ["CryptocurrencyMarketAPI-Huobi"]
-        ),
+//        .library(
+//            name: "CryptocurrencyMarketAPI-Huobi",
+//            targets: ["CryptocurrencyMarketAPI-Huobi"]
+//        ),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -38,14 +38,14 @@ let package = Package(
             dependencies: ["CryptocurrencyMarketAPI-Common"],
             path: "Sources/Binance"
         ),
-        .target(
-            name: "CryptocurrencyMarketAPI-Huobi",
-            dependencies: ["CryptocurrencyMarketAPI-Common"],
-            path: "Sources/Huobi"
-        ),
-        .testTarget(
-            name: "CryptocurrencyMarketAPITests",
-            dependencies: ["CryptocurrencyMarketAPI-Binance", "CryptocurrencyMarketAPI-Huobi"]
-        ),
+//        .target(
+//            name: "CryptocurrencyMarketAPI-Huobi",
+//            dependencies: ["CryptocurrencyMarketAPI-Common"],
+//            path: "Sources/Huobi"
+//        ),
+//        .testTarget(
+//            name: "CryptocurrencyMarketAPITests",
+//            dependencies: ["CryptocurrencyMarketAPI-Binance", "CryptocurrencyMarketAPI-Huobi"]
+//        ),
     ]
 )

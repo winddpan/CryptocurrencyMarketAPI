@@ -107,24 +107,29 @@ public struct FutureSingleSideOrder: FutureOrder {
 
     /// DECIMAL NO  委托价格
     let price: Decimal?
+    
+    /// STRING  NO  用户自定义的订单号，不可以重复出现在挂单中。如空缺系统会自动赋值。必须满足正则规则 ^[\.A-Z\:/a-z0-9_-]{1,36}$
+    let newClientOrderId: String?
 
     /// 限价单
-    public init(limit symbol: FutureSymbol, side: Side, price: Decimal, quantity: Decimal, reduceOnly: Bool? = nil) {
+    public init(limit symbol: FutureSymbol, side: Side, price: Decimal, quantity: Decimal, reduceOnly: Bool? = nil, newClientOrderId: String? = nil) {
         type = "LIMIT"
         self.price = price
         self.quantity = quantity
         self.symbol = symbol.rawValue
         self.side = side.rawValue.uppercased()
         self.reduceOnly = reduceOnly?.stringValue
+        self.newClientOrderId = newClientOrderId
     }
 
     /// 市价单
-    public init(market symbol: FutureSymbol, side: Side, quantity: Decimal) {
+    public init(market symbol: FutureSymbol, side: Side, quantity: Decimal, newClientOrderId: String? = nil) {
         type = "MARKET"
         price = nil
         self.quantity = quantity
         self.symbol = symbol.rawValue
         self.side = side.rawValue.uppercased()
+        self.newClientOrderId = newClientOrderId
         reduceOnly = nil
     }
 }
