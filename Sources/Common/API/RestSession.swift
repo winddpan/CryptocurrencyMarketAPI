@@ -40,10 +40,8 @@ open class RestSession {
             request = plugin.prepare(request, api: api)
         }
 
-        weak var weakSelf = self
         return Single<JSON>.create { (single) -> Disposable in
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                guard let self = weakSelf else { return }
                 var data = data
                 var response = response
                 var error = error
